@@ -30,11 +30,26 @@ parsing, §5 schema).
   inbox right after permission is granted, since without it the dashboard
   would show ₹0 until the next SMS arrives — not explicitly in the spec but
   needed for correctness).
-- **UI**: `ui/root/AppRoot.kt` is the top-level router — no settings row yet →
-  `OnboardingScreen`; settings but no SMS permission → `SmsPermissionScreen`;
-  else → `FinSetNavHost` (bottom nav: Dashboard / Transactions / Settings).
+- **UI**: `ui/root/AppRoot.kt` is the top-level router — SMS permission is now
+  asked **first** (before Onboarding, reordered from the original flow — see
+  below), then no settings row yet → `OnboardingScreen`, else →
+  `FinSetNavHost` (bottom nav: Dashboard / Transactions / Settings).
   Onboarding and Settings share one form (`ui/settings/SettingsForm.kt` +
   `SettingsFormState`) to avoid duplicating the input fields.
+- **Auto-estimated outing cost** (user-requested, not in original spec):
+  `SmsInboxScanner.estimateOutingCostFromHistory()` scans the last 6 months of
+  SMS, and `domain/OutingCostEstimator.kt` averages only the **leisure**
+  categories (`SmsParser.LEISURE_CATEGORIES` = Food + Entertainment —
+  deliberately narrow, excludes Travel/Shopping/Groceries/Medical/Bills since
+  those aren't "an outing"). `AppRootViewModel.scanHistoryForOnboarding()`
+  triggers it once permission is granted and `OnboardingScreen` pre-fills
+  (still editable) the outing-cost field with the result. This is *why*
+  permission is now requested before Onboarding — the suggestion needs SMS
+  history to exist first. `SmsParser`'s merchant-category keyword list was
+  expanded accordingly: Entertainment now also catches movies/games
+  (bookmyshow/pvr/inox/steam/playstation/xbox), and three new essential
+  categories (Groceries, Medical, Bills) exist purely so those don't get
+  miscounted as leisure or left ambiguous in "UPI / Discretionary".
 - `data/repository/*` mirrors the old FastAPI ledger's month-window query
   pattern (`start = first-of-month`, `end = start + 1 month`) — see
   `domain/model/MonthWindow.kt` — rather than re-deriving it.
@@ -59,6 +74,14 @@ parsing, §5 schema).
       `TopAppBar`; `SettingsForm.kt` used `ExposedDropdownMenu`, which doesn't
       exist in the Material3 version this BOM pulls (1.2.x) — swapped for
       plain `DropdownMenu` + `DropdownMenuItem`.
+- [x] Auto-estimated outing cost from SMS history (see Architecture above).
+      21/21 tests green after adding it (`OutingCostEstimatorTest`, plus new
+      `SmsParserTest` cases for the Entertainment/Groceries/Medical/Bills
+      keyword additions and the `LEISURE_CATEGORIES` membership).
+- [x] Built and handed off a debug APK (`app/build/outputs/apk/debug/app-debug.apk`)
+      for manual sideload install — user hit Play Protect blocking the SMS-
+      permission app on install; walked through "More details → Install
+      anyway" / temporarily disabling Play Protect scanning.
 - [ ] Not yet run on a device/emulator — no AVD created yet. Unit tests +
       compile success confirm the code is correct, not the on-device SMS →
       dashboard flow.
