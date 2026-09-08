@@ -91,4 +91,51 @@ class SmsParserTest {
         assertTrue(SmsParser.isKnownSender("AX-PHONEPE"))
         assertTrue(SmsParser.isKnownSender("PAYTM"))
     }
+
+    @Test
+    fun `movies and games count as entertainment`() {
+        val body = "Rs.600 paid to BookMyShow for movie tickets."
+        val result = SmsParser.parse("PhonePe", body, fixedTime)
+
+        assertNotNull(result)
+        assertEquals("Entertainment", result!!.category)
+    }
+
+    @Test
+    fun `groceries are not tagged as food`() {
+        val body = "Rs.450 spent at Blinkit Grocery App on your HDFC card."
+        val result = SmsParser.parse("HDFCBK", body, fixedTime)
+
+        assertNotNull(result)
+        assertEquals("Groceries", result!!.category)
+    }
+
+    @Test
+    fun `hospital and pharmacy sms are tagged medical`() {
+        val body = "Rs.1200 paid to Apollo Pharmacy on Paytm."
+        val result = SmsParser.parse("Paytm", body, fixedTime)
+
+        assertNotNull(result)
+        assertEquals("Medical", result!!.category)
+    }
+
+    @Test
+    fun `utility bills are tagged bills`() {
+        val body = "Rs.799 paid to Airtel Postpaid Bill via GPay."
+        val result = SmsParser.parse("GPay", body, fixedTime)
+
+        assertNotNull(result)
+        assertEquals("Bills", result!!.category)
+    }
+
+    @Test
+    fun `only food and entertainment count as leisure`() {
+        assertTrue("Food" in SmsParser.LEISURE_CATEGORIES)
+        assertTrue("Entertainment" in SmsParser.LEISURE_CATEGORIES)
+        assertTrue("Travel" !in SmsParser.LEISURE_CATEGORIES)
+        assertTrue("Shopping" !in SmsParser.LEISURE_CATEGORIES)
+        assertTrue("Groceries" !in SmsParser.LEISURE_CATEGORIES)
+        assertTrue("Medical" !in SmsParser.LEISURE_CATEGORIES)
+        assertTrue("Bills" !in SmsParser.LEISURE_CATEGORIES)
+    }
 }

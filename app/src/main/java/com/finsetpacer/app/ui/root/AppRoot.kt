@@ -18,13 +18,15 @@ import com.finsetpacer.app.ui.permission.SmsPermissionScreen
 import com.finsetpacer.app.ui.permission.hasSmsPermissions
 
 /**
- * Top-level router: no settings yet -> Onboarding; settings but no SMS
- * permission -> permission gate; otherwise the bottom-nav'd main app.
+ * Top-level router: no SMS permission yet -> permission gate (asked first, since
+ * Onboarding wants SMS history to suggest an outing cost); permission granted but
+ * no settings yet -> Onboarding; otherwise the bottom-nav'd main app.
  */
 @Composable
 fun AppRoot(viewModel: AppRootViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val suggestedOutingCost by viewModel.suggestedOutingCost.collectAsStateWithLifecycle()
     var hasSmsPermission by remember { mutableStateOf(hasSmsPermissions(context)) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -32,16 +34,18 @@ fun AppRoot(viewModel: AppRootViewModel = hiltViewModel()) {
     ) { results ->
         val granted = results.values.all { it }
         hasSmsPermission = granted
-        if (granted) viewModel.onSmsPermissionGranted()
     }
 
     when {
-        settings == null -> OnboardingScreen()
         !hasSmsPermission -> SmsPermissionScreen(
             onRequestPermission = { permissionLauncher.launch(SMS_PERMISSIONS) }
         )
+        settings == null -> {
+            LaunchedEffect(Unit) { viewModel.scanHistoryForOnboarding() }
+            OnboardingScreen(suggestedOutingCost = suggestedOutingCost)
+        }
         else -> {
-            LaunchedEffect(Unit) { viewModel.onSmsPermissionGranted() }
+            LaunchedEffect(Unit) { viewModel.refreshCurrentMonth() }
             FinSetNavHost()
         }
     }

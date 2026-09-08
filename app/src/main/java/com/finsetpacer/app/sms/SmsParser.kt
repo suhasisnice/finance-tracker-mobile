@@ -41,11 +41,32 @@ object SmsParser {
     )
 
     private val MERCHANT_CATEGORY_KEYWORDS: List<Pair<Regex, String>> = listOf(
-        Regex("(?i)zomato|swiggy|eatsure|dominos|mcdonald") to "Food",
+        Regex("(?i)zomato|swiggy(?!\\s?instamart)|eatsure|dominos|mcdonald") to "Food",
+        Regex(
+            "(?i)netflix|hotstar|spotify|prime\\s?video|bookmyshow|pvr|inox|" +
+                "steam|playstation|xbox|nintendo|epicgames"
+        ) to "Entertainment",
         Regex("(?i)uber|ola|rapido|irctc|redbus") to "Travel",
         Regex("(?i)amazon|flipkart|myntra|ajio|meesho") to "Shopping",
-        Regex("(?i)netflix|hotstar|spotify|prime\\s?video") to "Entertainment"
+        Regex(
+            "(?i)bigbasket|blinkit|zepto|dmart|grofers|swiggy\\s?instamart|instamart"
+        ) to "Groceries",
+        Regex(
+            "(?i)apollo|medplus|netmeds|pharmeasy|1mg|practo|hospital|clinic|diagnostic"
+        ) to "Medical",
+        Regex(
+            "(?i)electricity|bescom|mseb|airtel|jio|vodafone|vi\\b|act\\s?fibernet|" +
+                "gas\\s?agency|lic\\b|insurance|policybazaar"
+        ) to "Bills"
     )
+
+    /**
+     * Categories counted as "leisure/outing" spend for auto-estimating the
+     * average outing cost — deliberately narrow (food & entertainment/games
+     * only) per the user's request, excluding travel/shopping/groceries/
+     * medical/bills as those are ambiguous or essential rather than an outing.
+     */
+    val LEISURE_CATEGORIES: Set<String> = setOf("Food", "Entertainment")
 
     private val TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
