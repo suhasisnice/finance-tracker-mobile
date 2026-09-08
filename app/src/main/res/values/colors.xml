@@ -1,0 +1,6 @@
+<resources>
+    <color name="pacer_green">#2E7D32</color>
+    <color name="pacer_amber">#F9A825</color>
+    <color name="pacer_red">#C62828</color>
+    <color name="pacer_surface">#FFFBFE</color>
+</resources>
