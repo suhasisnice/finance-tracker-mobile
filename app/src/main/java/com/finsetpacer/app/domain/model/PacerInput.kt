@@ -9,6 +9,7 @@ data class PacerInput(
     val monthlyIncome: Double,
     val fixedCosts: Double,
     val averageOutingCost: Double,
+    val currentBalance: Double,
     val savingsMode: SavingsMode,
     val savingsPercentage: Double? = null,
     val targetAmount: Double? = null,

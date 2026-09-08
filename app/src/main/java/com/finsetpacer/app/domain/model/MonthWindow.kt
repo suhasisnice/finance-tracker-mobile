@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
  */
 data class MonthWindow(val startInclusive: String, val endExclusive: String) {
     companion object {
-        private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val DATE_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
         fun forDate(date: LocalDate): MonthWindow {
             val start = date.withDayOfMonth(1)
@@ -23,5 +23,8 @@ data class MonthWindow(val startInclusive: String, val endExclusive: String) {
         }
 
         fun current(): MonthWindow = forDate(LocalDate.now())
+
+        /** Start-of-today, in the same text format as tDate/trackingStartDate — used to stamp a new tracking start. */
+        fun todayStart(): String = LocalDate.now().atStartOfDay().format(DATE_TIME_FORMAT)
     }
 }

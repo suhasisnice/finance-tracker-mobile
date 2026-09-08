@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.finsetpacer.app.domain.model.MonthWindow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +46,8 @@ fun SettingsScreen(
             state = formState,
             saveLabel = "Save changes",
             onSave = {
-                viewModel.save(formState) {
+                val trackingStartDate = settings?.trackingStartDate ?: MonthWindow.todayStart()
+                viewModel.save(formState, trackingStartDate) {
                     scope.launch { snackbarHostState.showSnackbar("Settings saved") }
                 }
             },

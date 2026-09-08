@@ -3,6 +3,7 @@ package com.finsetpacer.app.ui.onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.finsetpacer.app.data.repository.SettingsRepository
+import com.finsetpacer.app.domain.model.MonthWindow
 import com.finsetpacer.app.ui.settings.SettingsFormState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +17,9 @@ class OnboardingViewModel @Inject constructor(
     fun save(state: SettingsFormState) {
         if (!state.isValid) return
         viewModelScope.launch {
-            settingsRepository.save(state.toEntity())
+            // First-ever save: stamp tracking start as right now, so "spent so
+            // far" never includes anything from before the user started using the app.
+            settingsRepository.save(state.toEntity(trackingStartDate = MonthWindow.todayStart()))
         }
     }
 }

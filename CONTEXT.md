@@ -82,6 +82,35 @@ parsing, §5 schema).
       for manual sideload install — user hit Play Protect blocking the SMS-
       permission app on install; walked through "More details → Install
       anyway" / temporarily disabling Play Protect scanning.
+- [x] **Balance-driven pacing rework** (user-requested — they saw "Spent so far
+      ₹20k / Remaining allowance −₹18k" on first launch mid-month, because the
+      old formula counted the whole calendar month's SMS, including days
+      before they'd even installed the app). Two changes, confirmed with the
+      user via AskUserQuestion before implementing (this is a real formula
+      change, not a bug fix):
+      1. `SettingsEntity.trackingStartDate` — stamped once (`MonthWindow.todayStart()`)
+         the first time Onboarding is completed, preserved as-is on every later
+         Settings edit (`SettingsViewModel.save` takes `existingTrackingStartDate`
+         explicitly). `domain/model/TrackingWindow.kt` clamps it to the current
+         month's start whenever the month rolls over. "Spent so far" now only
+         counts transactions from this point forward — `TransactionRepository
+         .observeSinceTracking()`, wired into `DashboardViewModel` via
+         `flatMapLatest` (the window itself depends on settings, so `combine`
+         doesn't fit).
+      2. `SettingsEntity.currentBankBalance` — new required onboarding field.
+         `PacerEngine.evaluate()`'s `remainingAllowance` (what actually drives
+         Safe/HoldOff/Exceeded) is now `currentBalance − monthlySavingsTarget
+         − spentSinceTrackingStart` — the user explicitly chose this over the
+         alternative that also reserved upcoming fixed bills, to avoid double-
+         counting since the balance already reflects whatever's been paid. The
+         old `discretionaryBudget` (income − savings − fixed costs) is kept in
+         `PacerBreakdown` as informational-only context, shown in
+         `DashboardScreen`, so Fixed Costs doesn't become a silently-unused
+         field even though it no longer drives the decision.
+      Room DB bumped to version 2 with `fallbackToDestructiveMigration()` (no
+      real user data existed yet to preserve). 24/24 tests pass (added
+      `TrackingWindowTest`, a fifth `PacerEngineTest` case, and reworked the
+      other three with hand-traced expected numbers for the new formula).
 - [ ] Not yet run on a device/emulator — no AVD created yet. Unit tests +
       compile success confirm the code is correct, not the on-device SMS →
       dashboard flow.
