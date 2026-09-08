@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
@@ -121,12 +123,12 @@ private fun SavingsModeDropdown(
                 .menuAnchor()
                 .fillMaxWidth()
         )
-        androidx.compose.material3.ExposedDropdownMenu(
+        DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
             SavingsMode.entries.forEach { mode ->
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = {
                         Text(
                             when (mode) {
