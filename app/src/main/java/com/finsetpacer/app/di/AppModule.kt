@@ -19,7 +19,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DB_NAME).build()
+        Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DB_NAME)
+            // No real user data to preserve across this schema change yet (early dev).
+            .fallbackToDestructiveMigration()
+            .build()
 
     @Provides
     fun provideSettingsDao(database: AppDatabase): SettingsDao = database.settingsDao()

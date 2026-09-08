@@ -3,6 +3,7 @@ package com.finsetpacer.app.data.repository
 import com.finsetpacer.app.data.db.TransactionDao
 import com.finsetpacer.app.data.db.TransactionEntity
 import com.finsetpacer.app.domain.model.MonthWindow
+import com.finsetpacer.app.domain.model.TrackingWindow
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,6 +14,12 @@ class TransactionRepository @Inject constructor(
 ) {
     fun observeCurrentMonth(): Flow<List<TransactionEntity>> {
         val window = MonthWindow.current()
+        return transactionDao.observeForMonth(window.startInclusive, window.endExclusive)
+    }
+
+    /** What the pacer's "spent so far" should use — see TrackingWindow. */
+    fun observeSinceTracking(trackingStartDate: String): Flow<List<TransactionEntity>> {
+        val window = TrackingWindow.effectiveWindow(trackingStartDate)
         return transactionDao.observeForMonth(window.startInclusive, window.endExclusive)
     }
 

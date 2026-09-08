@@ -97,12 +97,17 @@ private fun BreakdownCard(breakdown: PacerBreakdown) {
     Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("This month", style = MaterialTheme.typography.titleMedium)
+            BreakdownRow("Current balance", breakdown.currentBalance)
             BreakdownRow("Savings target", breakdown.monthlySavingsTarget)
-            BreakdownRow("Discretionary budget", breakdown.discretionaryBudget)
-            BreakdownRow("Spent so far", breakdown.currentMonthSpent)
+            BreakdownRow("Spent since you started tracking", breakdown.spentSinceTrackingStart)
             BreakdownRow("Remaining allowance", breakdown.remainingAllowance)
             BreakdownRow("Days remaining", breakdown.daysRemainingInMonth.toDouble(), isMoney = false)
             BreakdownRow("Safe daily pace", breakdown.safeDailyPace)
+            Text(
+                text = "Theoretical monthly discretionary budget (income − savings − bills): " +
+                    "₹${breakdown.discretionaryBudget.formatMoney()}",
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }

@@ -11,6 +11,7 @@ class SettingsFormState {
     var monthlyIncome by mutableStateOf("")
     var fixedCosts by mutableStateOf("")
     var averageOutingCost by mutableStateOf("")
+    var currentBankBalance by mutableStateOf("")
     var savingsMode by mutableStateOf(SavingsMode.PERCENTAGE)
     var savingsPercentage by mutableStateOf("")
     var targetAmount by mutableStateOf("")
@@ -20,6 +21,7 @@ class SettingsFormState {
         monthlyIncome = settings.monthlyIncome.toPlainStringOrEmpty()
         fixedCosts = settings.fixedCosts.toPlainStringOrEmpty()
         averageOutingCost = settings.averageOutingCost.toPlainStringOrEmpty()
+        currentBankBalance = settings.currentBankBalance.toPlainStringOrEmpty()
         savingsMode = SavingsMode.fromStorageValue(settings.savingsMode)
         savingsPercentage = settings.savingsPercentage?.toPlainStringOrEmpty() ?: ""
         targetAmount = settings.targetAmount?.toPlainStringOrEmpty() ?: ""
@@ -32,22 +34,26 @@ class SettingsFormState {
             val incomeOk = monthlyIncome.toDoubleOrNull() != null
             val fixedOk = fixedCosts.toDoubleOrNull() != null
             val outingOk = averageOutingCost.toDoubleOrNull() != null
+            val balanceOk = currentBankBalance.toDoubleOrNull() != null
             val modeOk = when (savingsMode) {
                 SavingsMode.PERCENTAGE -> savingsPercentage.toDoubleOrNull() != null
                 SavingsMode.TARGET_AMOUNT ->
                     targetAmount.toDoubleOrNull() != null && targetMonths.toIntOrNull() != null
             }
-            return incomeOk && fixedOk && outingOk && modeOk
+            return incomeOk && fixedOk && outingOk && balanceOk && modeOk
         }
 
-    fun toEntity(): SettingsEntity = SettingsEntity(
+    /** @param trackingStartDate see SettingsEntity — the caller decides whether to stamp "now" or preserve the existing one. */
+    fun toEntity(trackingStartDate: String): SettingsEntity = SettingsEntity(
         monthlyIncome = monthlyIncome.toDouble(),
         fixedCosts = fixedCosts.toDouble(),
         averageOutingCost = averageOutingCost.toDouble(),
+        currentBankBalance = currentBankBalance.toDouble(),
         savingsMode = savingsMode.name,
         savingsPercentage = savingsPercentage.toDoubleOrNull(),
         targetAmount = targetAmount.toDoubleOrNull(),
-        targetMonths = targetMonths.toIntOrNull()
+        targetMonths = targetMonths.toIntOrNull(),
+        trackingStartDate = trackingStartDate
     )
 }
 

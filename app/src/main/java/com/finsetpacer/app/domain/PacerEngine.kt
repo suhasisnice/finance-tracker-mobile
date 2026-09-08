@@ -36,19 +36,27 @@ object PacerEngine {
     }
 
     /**
-     * §3.B/C — full breakdown for the current point in the month.
+     * Full breakdown for the current point in the month. remainingAllowance —
+     * and therefore [PacerResult] — is balance-based, not the original §3.B
+     * income-derived figure: currentBalance − monthlySavingsTarget −
+     * spentSinceTrackingStart. This is deliberate (user-requested): using the
+     * real bank balance avoids double-counting fixed costs already paid, and
+     * "spent so far" excludes anything from before the user started tracking
+     * (see TrackingWindow) so pre-install spending isn't held against them.
+     * discretionaryBudget (income − savings − fixed costs) is retained purely
+     * as informational context in the breakdown, not part of the decision.
      *
-     * @param currentMonthSpent §3.B.2, E_spent — sum of SMS debits so far this month.
+     * @param spentSinceTrackingStart sum of SMS debits from trackingStartDate onward.
      * @param today defaults to the real current date; overridable for tests.
      */
     fun evaluate(
         input: PacerInput,
-        currentMonthSpent: Double,
+        spentSinceTrackingStart: Double,
         today: LocalDate = LocalDate.now()
     ): PacerBreakdown {
         val savingsTarget = monthlySavingsTarget(input)
         val discretionaryBudget = input.monthlyIncome - savingsTarget - input.fixedCosts
-        val remainingAllowance = discretionaryBudget - currentMonthSpent
+        val remainingAllowance = input.currentBalance - savingsTarget - spentSinceTrackingStart
 
         val daysInMonth = today.lengthOfMonth()
         val daysRemaining = daysInMonth - today.dayOfMonth + 1
@@ -71,7 +79,8 @@ object PacerEngine {
         return PacerBreakdown(
             monthlySavingsTarget = savingsTarget,
             discretionaryBudget = discretionaryBudget,
-            currentMonthSpent = currentMonthSpent,
+            currentBalance = input.currentBalance,
+            spentSinceTrackingStart = spentSinceTrackingStart,
             remainingAllowance = remainingAllowance,
             daysRemainingInMonth = daysRemaining,
             safeDailyPace = safeDailyPace,

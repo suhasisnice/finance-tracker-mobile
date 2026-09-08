@@ -35,6 +35,14 @@ fun SettingsForm(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         OutlinedTextField(
+            value = state.currentBankBalance,
+            onValueChange = { state.currentBankBalance = it },
+            label = { Text("Current bank balance (₹)") },
+            supportingText = { Text("Snapshot as of today — drives your remaining allowance. Update anytime.") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
             value = state.monthlyIncome,
             onValueChange = { state.monthlyIncome = it },
             label = { Text("Monthly income (₹)") },

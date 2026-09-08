@@ -12,10 +12,11 @@ class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    fun save(state: SettingsFormState, onSaved: () -> Unit) {
+    /** @param existingTrackingStartDate must be preserved as-is — Settings edits never reset it. */
+    fun save(state: SettingsFormState, existingTrackingStartDate: String, onSaved: () -> Unit) {
         if (!state.isValid) return
         viewModelScope.launch {
-            settingsRepository.save(state.toEntity())
+            settingsRepository.save(state.toEntity(trackingStartDate = existingTrackingStartDate))
             onSaved()
         }
     }

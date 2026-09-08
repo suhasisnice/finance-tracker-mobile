@@ -17,11 +17,20 @@ sealed class PacerResult {
     object BudgetExceeded : PacerResult()
 }
 
-/** Intermediate figures from §3.A/B, exposed so the UI can show a full breakdown. */
+/**
+ * Intermediate figures exposed so the UI can show a full breakdown.
+ *
+ * remainingAllowance drives [result] and is balance-based: currentBalance −
+ * monthlySavingsTarget − spentSinceTrackingStart. discretionaryBudget (the
+ * original §3.B income − savings − fixed-costs figure) is kept only as
+ * informational context — it no longer feeds the decision, since the real
+ * bank balance already reflects whatever's actually been paid.
+ */
 data class PacerBreakdown(
     val monthlySavingsTarget: Double,
     val discretionaryBudget: Double,
-    val currentMonthSpent: Double,
+    val currentBalance: Double,
+    val spentSinceTrackingStart: Double,
     val remainingAllowance: Double,
     val daysRemainingInMonth: Int,
     val safeDailyPace: Double,
