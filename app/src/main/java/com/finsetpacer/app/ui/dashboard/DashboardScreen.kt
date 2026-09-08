@@ -31,6 +31,7 @@ import com.finsetpacer.app.ui.theme.PacerRed
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
     val breakdown by viewModel.breakdown.collectAsStateWithLifecycle()
